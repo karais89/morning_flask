@@ -8,6 +8,9 @@ python -m venv venv
 - vscode에서 run and debug 메뉴의 create setting.json 클릭
 - pip install flask
 
+## Github 프로젝트 칸반 사용 테스트 중
+- PullRequest 부분 테스트 진행 중 (vscode에서 쉽게 사용 가능한지에 대한 부분)
+
 시작하고 싶으신가요? 이 페이지는 Flask에 대한 좋은 소개를 제공합니다. 
 Flask가 이미 설치되어 있다고 가정합니다. 그렇지 않은 경우 설치 섹션으로 이동하십시오.
 
