@@ -5,7 +5,7 @@
 root
   L 프로젝트1
     L 프로젝트1에 필요한 파일들
-    L READEME.md
+    L README.md
     L .gitignore
     L venv (가상환경 파일들)
     L .vscode
