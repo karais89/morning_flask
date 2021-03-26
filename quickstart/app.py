@@ -1,4 +1,4 @@
-from flask import Flask, escape, url_for, request
+from flask import Flask, escape, url_for, request, render_template
 
 app = Flask(__name__)
 
@@ -58,6 +58,12 @@ def do_the_login():
 
 def show_the_login_form():
     pass
+
+
+@app.route('/hello/')
+@app.route('/hello/<name>')
+def hello(name=None):
+    return render_template('hello.html', name=name)
 
 
 with app.test_request_context():
