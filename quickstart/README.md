@@ -250,5 +250,65 @@ url_for('static', filename = 'style.css')
 - https://stackoverflow.com/questions/31682179/how-to-serve-flask-static-files-using-nginx
 
 
+## 렌더링 템플릿
+
+Python 내에서 HTML을 생성하는 것은 재미가 없으며 실제로는 애플리케이션 보안을 유지하기 위해 HTML 이스케이프를 직접 수행해야하기 때문에 매우 번거 롭습니다. 그 때문에 Flask는 자동으로 [Jinja2](https://jinja.palletsprojects.com/en/2.11.x/) 템플릿 엔진을 구성합니다.
+
+템플릿을 렌더링하려면 `render_template()` 메서드를 사용할 수 있습니다. 여러분이해야 할 일은 템플릿의 이름과 템플릿 엔진에 키워드 인자로 전달할 변수를 제공하는 것뿐입니다. 다음은 템플릿을 렌더링하는 방법에 대한 간단한 예입니다.
+
+```py
+from flask import render_template
+
+@app.route('/hello/')
+@app.route('/hello/<name>')
+def hello(name=None):
+    return render_template('hello.html', name=name)
+```
+
+Flask는 templates 폴더에서 템플릿을 찾습니다. 따라서 애플리케이션이 module인 경우 이 폴더는 해당 모듈 옆에 있고, 패키지 인 경우 실제로 패키지 내부에 있습니다
+
+```
+Case 1: a module:
+/application.py
+/templates
+    /hello.html
+
+Case 2: a package:
+/application
+    /__init__.py
+    /templates
+        /hello.html
+```
+
+템플릿의 경우 Jinja2 템플릿의 모든 기능을 사용할 수 있습니다. 자세한 내용은 공식 [Jinja2 템플릿 문서](https://jinja.palletsprojects.com/en/2.11.x/templates/)를 참조하세요.
+
+템플릿 예제입니다.
+```html
+<!doctype html>
+<title>Hello from Flask</title>
+{% if name %}
+  <h1>Hello {{ name }}!</h1>
+{% else %}
+  <h1>Hello, World!</h1>
+{% endif %}
+```
+
+템플릿 내에서 요청, 세션 및 g 객체와 `get_flashed_messages()` 함수에 액세스 할 수도 있습니다.
+
+상속이 사용되는 경우 템플릿이 특히 유용합니다. 작동 방식을 알고 싶다면 [템플릿 상속 패턴 문서](https://flask.palletsprojects.com/en/1.1.x/patterns/templateinheritance/#template-inheritance)를 참조하십시오. 기본적으로 템플릿 상속을 통해 각 페이지의 특정 요소 (예 : 머리글, 탐색 및 바닥 글)를 유지할 수 있습니다.
+
+자동 이스케이프가 활성화되어 있으므로 이름에 HTML이 포함되어 있으면 자동으로 이스케이프됩니다. 변수를 신뢰할 수 있고 그것이 안전한 HTML이라는 것을 알고 있다면 (예를 들어 위키 마크 업을 HTML로 변환하는 모듈에서 왔기 때문에) Markup 클래스를 사용하거나 | 안전 필터를 사용하여 안전하다고 표시 할 수 있습니다. 템플릿. 더 많은 예제를 보려면 Jinja 2 문서로 이동하십시오.
+
+다음은 Markup 클래스의 작동 방식에 대한 기본 소개입니다.
+
+```
+>>> from markupsafe import Markup
+>>> Markup('<strong>Hello %s!</strong>') % '<blink>hacker</blink>'
+Markup(u'<strong>Hello &lt;blink&gt;hacker&lt;/blink&gt;!</strong>')
+>>> Markup.escape('<blink>hacker</blink>')
+Markup(u'&lt;blink&gt;hacker&lt;/blink&gt;')
+>>> Markup('<em>Marked up</em> &raquo; HTML').striptags()
+```
+
 ## 참조
 - https://flask.palletsprojects.com/en/1.1.x/quickstart/
