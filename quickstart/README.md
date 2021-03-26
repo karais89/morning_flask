@@ -233,6 +233,22 @@ def login():
 
 GET이 있는 경우 Flask는 HEAD 메서드에 대한 지원을 자동으로 추가하고 HTTP RFC에 따라 HEAD 요청을 처리합니다. 마찬가지로 OPTIONS가 자동으로 구현됩니다.
 
+## 정적 파일
+
+동적 웹 애플리케이션에는 정적 파일도 필요합니다. 일반적으로 CSS 및 JavaScript 파일의 출처입니다. 이상적으로는 웹 서버가 사용자를 위해 웹 서버를 구성하지만, 개발 중에 Flask도 이 작업을 수행할 수 있습니다. 패키지 또는 모듈 옆에 static이라는 폴더를 생성하면 애플리케이션의 / static에서 사용할 수 있습니다.
+
+정적 파일에 대한 URL을 생성하려면 특수한 '정적'엔드 포인트 이름을 사용하십시오.
+
+```py
+url_for('static', filename = 'style.css')
+```
+
+파일은 `static/style.css`로 파일 시스템에 저장되어야합니다.
+
+[역주]
+- 해당 부분은 개발 용도에서는 자동으로 static 폴더에 접근을 하는 것 같고, ngix등으로 배포시 해당 경로로 지정해주는 부분으로 보인다.
+- https://stackoverflow.com/questions/31682179/how-to-serve-flask-static-files-using-nginx
+
 
 ## 참조
 - https://flask.palletsprojects.com/en/1.1.x/quickstart/
