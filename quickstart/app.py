@@ -1,4 +1,4 @@
-from flask import Flask, escape, url_for, request, render_template, make_response
+from flask import Flask, escape, url_for, request, render_template, make_response, abort
 
 app = Flask(__name__)
 
@@ -95,6 +95,15 @@ def set_cookies():
     resp = make_response(render_template('hello.html', name='kaya'))
     resp.set_cookie('username', 'the username')
     return resp
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('page_not_found.html'), 404
+
+@app.route('/error')
+def err_test():
+    abort(401)
+    # this_is_never_executed()
 
 with app.test_request_context():
     print(url_for('index'))

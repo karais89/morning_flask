@@ -442,6 +442,38 @@ def index():
 
 이에 대해서는 [응답 정보](https://flask.palletsprojects.com/en/1.1.x/quickstart/#about-responses)도 참조 하십시오.
 
+## 리다이렉션 및 오류
+
+사용자를 다른 끝점으로 리디렉션하려면 [redirect()](https://flask.palletsprojects.com/en/1.1.x/api/#flask.redirect) 함수를 사용하십시오. 오류 코드로 요청을 조기에 중단하려면 [abort()](https://flask.palletsprojects.com/en/1.1.x/api/#flask.abort) 함수를 사용하십시오.
+
+```py
+from flask import abort, redirect, url_for
+
+@app.route('/')
+def index():
+    return redirect(url_for('login'))
+
+@app.route('/login')
+def login():
+    abort(401)
+    this_is_never_executed()
+```
+
+이것은 사용자가 색인에서 액세스 할 수없는 페이지 (401은 액세스가 거부됨을 의미)로 리디렉션되기 때문에 다소 무의미한 예이지만 작동 방식을 보여줍니다.
+
+기본적으로 각 오류 코드에 대해 흑백 오류 페이지가 표시됩니다. 오류 페이지를 사용자 정의하려면 errorhandler() 데코레이터를 사용할 수 있습니다.
+
+```py
+from flask import render_template
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('page_not_found.html'), 404
+```
+
+render_template() 호출 후의 404에 유의하십시오. 이것은 Flask에게 해당 페이지의 상태 코드가 찾을 수 없음을 의미하는 404이어야 함을 알려줍니다. 기본적으로 200은 모든 것이 문제 없다로 해석 됩니다.
+
+자세한 내용은 [오류 처리기](https://flask.palletsprojects.com/en/1.1.x/errorhandling/#error-handlers)를 참조하십시오.
 
 ## 참조
 - https://flask.palletsprojects.com/en/1.1.x/quickstart/
