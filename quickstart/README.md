@@ -310,5 +310,138 @@ Markup(u'&lt;blink&gt;hacker&lt;/blink&gt;')
 >>> Markup('<em>Marked up</em> &raquo; HTML').striptags()
 ```
 
+## Accessing Request Data
+
+웹 애플리케이션의 경우 클라이언트가 서버로 보내는 데이터에 반응하는 것이 중요합니다. 
+Flask에서 이 정보는 전역 요청 객체에 의해 제공됩니다. Python에 대한 경험이 있다면 해당 객체가 전역이 될 수 있는 방법과 Flask가 여전히 스레드 안전을 유지하도록 관리하는 방법이 궁금 할 것입니다. 대답은 컨텍스트 로컬입니다.
+
+### 컨테스트 로컬
+
+작동 방식과 컨텍스트 로컬로 테스트를 구현하는 방법을 이해하려면 이 섹션을 읽고 그렇지 않으면 건너 뛰십시오.
+
+Flask의 특정 개체는 전역 개체이지만 일반적인 종류는 아닙니다. 이러한 개체는 실제로 특정 컨텍스트에 로컬 인 개체에 대한 프록시입니다. 한입. 그러나 그것은 실제로 이해하기 매우 쉽습니다.
+
+컨텍스트가 처리 스레드라고 상상해보십시오. 요청이 들어오고 웹 서버가 새 스레드를 생성하기로 결정합니다 (또는 다른 항목, 기본 개체가 스레드 이외의 동시성 시스템을 처리 할 수 있음). Flask가 내부 요청 처리를 시작하면 현재 스레드가 활성 컨텍스트임을 파악하고 현재 애플리케이션과 WSGI 환경을 해당 컨텍스트 (스레드)에 바인딩합니다. 한 응용 프로그램이 중단없이 다른 응용 프로그램을 호출 할 수 있도록 지능적인 방식으로 이를 수행합니다.
+
+이것은 당신에게 무엇을 의미합니까? 기본적으로 단위 테스트와 같은 작업을 수행하지 않는 한 이것이 사실임을 완전히 무시할 수 있습니다. 요청 객체가 없기 때문에 요청 객체에 의존하는 코드가 갑자기 중단되는 것을 알 수 있습니다. 해결책은 요청 객체를 직접 만들고 컨텍스트에 바인딩하는 것입니다. 단위 테스트를 위한 가장 쉬운 솔루션은 test_request_context() 컨텍스트 관리자를 사용하는 것입니다. with 문과 함께 테스트 요청을 바인딩하여 상호 작용할 수 있습니다. 다음은 그 예입니다.
+
+```python
+from flask import request
+
+with app.test_request_context('/hello', method='POST'):
+    # now you can do something with the request until the
+    # end of the with block, such as basic assertions:
+    assert request.path == '/hello'
+    assert request.method == 'POST'
+The other possibility is passing a whole WSGI environment to the request_context() method:
+
+from flask import request
+
+with app.request_context(environ):
+    assert request.method == 'POST'
+```
+
+우선 컨텍스트 객체라는 것을 유닛 테스트를 하지 않는 한 자세히 알 필요는 없고, 플라스크는 컨텍스트 로컬 방식으로 동작한다 정도로 알면 될 것 같다.
+
+### The Request Object
+
+요청 객체는 API 섹션에 문서화되어 있으며 여기서 자세히 다루지 않을 것입니다([Request 참조](https://flask.palletsprojects.com/en/1.1.x/api/#flask.Request)). 다음은 가장 일반적인 작업 중 일부에 대한 광범위한 개요입니다. 먼저 플라스크 모듈에서 가져와야합니다.
+
+```py
+from flask import request
+```
+
+현재 요청 방법은 method 속성을 사용하여 사용할 수 있습니다. 양식 데이터 (POST 또는 PUT 요청에서 전송 된 데이터)에 액세스하려면 양식 속성을 사용할 수 있습니다. 다음은 위에서 언급 한 두 가지 속성의 전체 예입니다.
+
+```py
+@app.route('/login', methods=['POST', 'GET'])
+def login():
+    error = None
+    if request.method == 'POST':
+        if valid_login(request.form['username'],
+                       request.form['password']):
+            return log_the_user_in(request.form['username'])
+        else:
+            error = 'Invalid username/password'
+    # the code below is executed if the request method
+    # was GET or the credentials were invalid
+    return render_template('login.html', error=error)
+```
+
+양식 속성에 키가 없으면 어떻게 됩니까? 이 경우 특별한 KeyError가 발생합니다. 표준 KeyError처럼 포착 할 수 있지만 그렇게 하지 않으면 HTTP 400 Bad Request 오류 페이지가 대신 표시됩니다. 따라서 많은 상황에서 그 문제를 다룰 필요가 없습니다.
+
+URL(?key=value)에 제출 된 매개 변수에 액세스하려면 args 속성을 사용할 수 있습니다.
+
+```py
+searchword = request.args.get('key', '')
+```
+
+사용자가 URL을 변경하고 400 요청 페이지를 표시하는 것은 사용자 친화적이지 않기 때문에 get 또는 KeyError를 포착하여 URL 매개 변수에 액세스하는 것이 좋습니다.
+
+요청 객체의 메서드 및 속성에 대한 전체 목록은 [요청 문서](https://flask.palletsprojects.com/en/1.1.x/api/#flask.Request)를 참조하세요.
+
+### 파일 업로드
+
+Flask로 업로드 된 파일을 쉽게 처리 할 수 있습니다. HTML 양식에 enctype = "multipart / form-data"속성을 설정하는 것을 잊지 마십시오. 그렇지 않으면 브라우저가 파일을 전혀 전송하지 않습니다.
+
+업로드 된 파일은 메모리 또는 파일 시스템의 임시 위치에 저장됩니다. 요청 개체의 파일 속성을 확인하여 해당 파일에 액세스 할 수 있습니다. 업로드 된 각 파일은 해당 사전에 저장됩니다. 표준 Python 파일 객체처럼 작동하지만 서버의 파일 시스템에 해당 파일을 저장할 수있는 save () 메서드도 있습니다. 다음은 작동 방식을 보여주는 간단한 예입니다.
+
+```py
+from flask import request
+
+@app.route('/upload', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        f = request.files['the_file']
+        f.save('/var/www/uploads/uploaded_file.txt')
+    ...
+```
+
+파일이 애플리케이션에 업로드되기 전에 클라이언트에서 파일 이름이 어떻게 지정되었는지 알고 싶다면 filename 속성에 액세스 할 수 있습니다. 그러나이 값은 위조 될 수 있으므로 절대로 그 값을 신뢰하지 마십시오. 클라이언트의 파일 이름을 사용하여 서버에 파일을 저장하려면 Werkzeug가 제공하는 secure_filename () 함수를 통해 전달하십시오.
+
+```py
+from flask import request
+from werkzeug.utils import secure_filename
+
+@app.route('/upload', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        f = request.files['the_file']
+        f.save('/var/www/uploads/' + secure_filename(f.filename))
+    ...
+```
+- 더 나은 예를 보려면 [파일 업로드 패턴](https://flask.palletsprojects.com/en/1.1.x/patterns/fileuploads/#uploading-files)을 확인하세요.
+- 파일 쪽 업로드 부분은 무시. 할 일이 없음
+
+### 쿠키
+쿠키에 액세스하려면 쿠키 속성을 사용할 수 있습니다. 쿠키를 설정하려면 응답 객체의 set_cookie 메소드를 사용할 수 있습니다. 요청 개체의 쿠키 속성은 클라이언트가 전송하는 모든 쿠키가 포함 된 사전입니다. [세션](https://flask.palletsprojects.com/en/1.1.x/quickstart/#sessions)을 사용하려면 쿠키를 직접 사용하지 말고 대신 쿠키 위에 보안을 추가하는 Flask의 세션을 사용하십시오.
+
+```py
+from flask import request
+
+@app.route('/')
+def index():
+    username = request.cookies.get('username')
+    # use cookies.get(key) instead of cookies[key] to not get a
+    # KeyError if the cookie is missing.
+```
+
+```py
+from flask import make_response
+
+@app.route('/')
+def index():
+    resp = make_response(render_template(...))
+    resp.set_cookie('username', 'the username')
+    return resp
+```
+
+쿠키는 응답 개체에 설정됩니다. 일반적으로 보기 함수에서 문자열을 반환하기 때문에 Flask는 이를 응답 객체로 변환합니다. 명시 적으로 그렇게하려면 make_response() 함수를 사용한 다음 수정할 수 있습니다.
+
+때때로 응답 객체가 아직 존재하지 않는 지점에 쿠키를 설정하고자 할 수 있습니다. 이는 [지연된 요청 콜백 패턴](https://flask.palletsprojects.com/en/1.1.x/patterns/deferredcallbacks/#deferred-callbacks)을 활용하여 가능합니다.
+
+이에 대해서는 [응답 정보](https://flask.palletsprojects.com/en/1.1.x/quickstart/#about-responses)도 참조 하십시오.
+
+
 ## 참조
 - https://flask.palletsprojects.com/en/1.1.x/quickstart/
