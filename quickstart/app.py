@@ -1,4 +1,4 @@
-from flask import Flask, escape, url_for, request, render_template, make_response, abort
+from flask import Flask, escape, url_for, request, render_template, make_response, abort, jsonify
 
 app = Flask(__name__)
 
@@ -104,6 +104,42 @@ def page_not_found(error):
 def err_test():
     abort(401)
     # this_is_never_executed()
+
+@app.route("/me")
+def me_api():
+    user = get_current_user()
+    return {
+        "username": user.username,
+        "theme": user.theme,
+        "image": url_for("user_image", filename=user.image),
+    }
+
+@app.route("/u_i/<filename>")
+def user_image():
+    return "test1234"
+
+class User:
+    def __init__(self):
+        pass
+
+def get_current_user():
+    u = User()
+    u.username = "kk",
+    u.theme = "dark",
+    u.image = "aaa"
+    return u
+
+@app.route("/users")
+def users_api():
+    users = get_all_users()
+    return jsonify([user.to_json() for user in users])
+
+def get_all_users():
+    return [
+        {"username": "kkk"},
+        {"username": "ccc"},
+        {"username": "aaa"}
+    ]
 
 with app.test_request_context():
     print(url_for('index'))
