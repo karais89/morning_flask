@@ -475,5 +475,58 @@ render_template() 호출 후의 404에 유의하십시오. 이것은 Flask에게
 
 자세한 내용은 [오류 처리기](https://flask.palletsprojects.com/en/1.1.x/errorhandling/#error-handlers)를 참조하십시오.
 
+## About Responses
+
+보기 함수의 반환 값은 자동으로 응답 개체로 변환됩니다. 반환 값이 문자열 인 경우 문자열이 응답 본문, 200 OK 상태 코드 및 text/html MIME 유형 인 응답 객체로 변환됩니다. 반환 값이 dict이면 응답을 생성하기 위해 jsonify()가 호출됩니다. Flask가 반환 값을 응답 개체로 변환하는 데 적용하는 논리는 다음과 같습니다.
+
+1. 올바른 유형의 응답 객체가 반환되면 뷰에서 직접 반환됩니다.
+2. 문자열 인 경우 해당 데이터와 기본 매개 변수를 사용하여 응답 객체가 생성됩니다.
+3. dict 인 경우 응답 객체는 jsonify를 사용하여 생성됩니다.
+4. 튜플이 반환되면 튜플의 항목이 추가 정보를 제공 할 수 있습니다. 이러한 튜플은 (응답, 상태), (응답, 헤더) 또는 (응답, 상태, 헤더) 형식이어야합니다. 상태 값은 상태 코드를 재정의하고 헤더는 추가 헤더 값의 목록 또는 사전이 될 수 있습니다.
+5. 작동하지 않는 경우 Flask는 반환 값이 유효한 WSGI 응용 프로그램이라고 가정하고이를 응답 객체로 변환합니다.
+
+뷰 내에서 결과 응답 객체를 얻으려면 make_response() 함수를 사용할 수 있습니다.
+
+```py
+@app.errorhandler(404)
+def not_found(error):
+    return render_template('error.html'), 404
+```
+
+반환 표현식을 make_response()로 래핑하고 응답 객체를 가져와 수정 한 다음 반환하면 됩니다.
+
+```py
+@app.errorhandler(404)
+def not_found(error):
+    resp = make_response(render_template('error.html'), 404)
+    resp.headers['X-Something'] = 'A value'
+    return resp
+```
+
+### APIs with JSON
+
+API를 작성할 때 일반적인 응답 형식은 JSON입니다. Flask로 이러한 API 작성을 시작하는 것은 쉽습니다. 뷰에서 dict를 반환하면 JSON 응답으로 변환됩니다.
+
+```py
+@app.route("/me")
+def me_api():
+    user = get_current_user()
+    return {
+        "username": user.username,
+        "theme": user.theme,
+        "image": url_for("user_image", filename=user.image),
+    }
+```
+
+API 디자인에 따라 dict 이외의 유형에 대한 JSON 응답을 만들 수 있습니다. 이 경우 지원되는 모든 JSON 데이터 유형을 직렬화하는 [jsonify()](https://flask.palletsprojects.com/en/1.1.x/api/#flask.json.jsonify) 함수를 사용하십시오. 또는 더 복잡한 애플리케이션을 지원하는 Flask 커뮤니티 확장을 살펴보세요.
+
+```py
+@app.route("/users")
+def users_api():
+    users = get_all_users()
+    return jsonify([user.to_json() for user in users])
+```
+- python list 내의 for문은 또 봐도 적응이 안됨.
+
 ## 참조
 - https://flask.palletsprojects.com/en/1.1.x/quickstart/
