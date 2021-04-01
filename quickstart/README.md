@@ -528,5 +528,72 @@ def users_api():
 ```
 - python list 내의 for문은 또 봐도 적응이 안됨.
 
+## 세션
+
+세션, 쿠키는 매일 보는 개념인데 항상 볼때마다 정확히 어떤 개념인지 좀 헷갈리는 것 같다.
+
+요청 객체 외에도 세션이라는 두 번째 객체가있어 한 요청에서 다음 요청까지 사용자 별 정보를 저장할 수 있습니다. 이는 귀하를 위해 쿠키 위에 구현되며 암호화 방식으로 쿠키에 서명합니다. 이것이 의미하는 바는 사용자가 서명에 사용 된 비밀 키를 모르면 쿠키의 내용을 볼 수는 있지만 수정할 수는 없다는 것입니다.
+
+```py
+from flask import Flask, session, redirect, url_for, request
+from markupsafe import escape
+
+app = Flask(__name__)
+
+# Set the secret key to some random bytes. Keep this really secret!
+app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+
+@app.route('/')
+def index():
+    if 'username' in session:
+        return 'Logged in as %s' % escape(session['username'])
+    return 'You are not logged in'
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        session['username'] = request.form['username']
+        return redirect(url_for('index'))
+    return '''
+        <form method="post">
+            <p><input type=text name=username>
+            <p><input type=submit value=Login>
+        </form>
+    '''
+
+@app.route('/logout')
+def logout():
+    # remove the username from the session if it's there
+    session.pop('username', None)
+    return redirect(url_for('index'))
+```
+
+여기에 언급 된 escape()는 템플릿 엔진을 사용하지 않는 경우 이스케이프 처리합니다 (이 예제에서와 같이).
+
+### 좋은 비밀 키를 생성하는 방법
+
+비밀 키는 가능한 한 임의적이어야합니다. 운영 체제에는 암호화 랜덤 생성기를 기반으로 매우 임의의 데이터를 생성하는 방법이 있습니다. 다음 명령을 사용하여 Flask.secret_key (또는 SECRET_KEY)에 대한 값을 빠르게 생성합니다.
+
+```
+$ python -c 'import os; print (os.urandom (16)) '
+b'_5 # y2L "F4Q8z \ n \ xec] / '
+```
+
+쿠키 기반 세션에 대한 참고 사항 : Flask는 세션 개체에 입력 한 값을 가져 와서 쿠키에 직렬화합니다. 일부 값이 요청간에 유지되지 않고 쿠키가 실제로 활성화되어 있으며 명확한 오류 메시지가 표시되지 않는 경우 웹 브라우저에서 지원하는 크기와 비교하여 페이지 응답에서 쿠키 크기를 확인하십시오.
+
+기본 클라이언트 측 기반 세션 외에도 서버 측에서 세션을 처리하려는 경우 이를 지원하는 여러 Flask 확장이 있습니다.
+
+- 쿠키(Cookie)
+    - 쿠키는 클라이언트에 저장되는 키와 값이 들이있는 작은 데이터 파일입니다.
+    - 쿠키는 이름, 값, 만료날짜(쿠키 저장기간), 경로정보가 들어있습니다.
+    - 쿠키는 일정 시간동안 데이터를 저장할 수 있어서 로그인 상태를 유지합니다.
+    - 쿠키는 클라이언트의 상태 정보를 본인 하드 디스크에 저장하였다가 필요할 때 참조, 재사용합니다
+- 세션(Session)
+    - 세션은 클라이언트와 웹서버 간 네트워크 연결이 지속 유지되고 있는 상태를 말합니다.
+    - 즉, 사용자가 브라우저를 열어 서버에 접속한 뒤 접속을 종료할 때 시점 까지를 말합니다.
+    - HTTP 프로토콜은 비접속형 프로토콜이므로, 매 접속시마다 새로운 네트워크 연결이 이루어지는데, 세션이 연결유지를 가능하게 해줍니다.
+    - 클라이언트가 웹서버에 Request를 보내면, 해당 서버의 엔진이 클라이언트에게 유일한 ID를 부여하는데 이 ID를 세션이라고 부릅니다.
+    - 세션 ID는 임시로 저장하여 페이지 이동 시 이용하거나, 클라이언트가 재 접속 했을 때 클라이언트를 유일하게 구분하는 수단이 됩니다.
+
 ## 참조
 - https://flask.palletsprojects.com/en/1.1.x/quickstart/
