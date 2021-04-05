@@ -595,5 +595,11 @@ b'_5 # y2L "F4Q8z \ n \ xec] / '
     - 클라이언트가 웹서버에 Request를 보내면, 해당 서버의 엔진이 클라이언트에게 유일한 ID를 부여하는데 이 ID를 세션이라고 부릅니다.
     - 세션 ID는 임시로 저장하여 페이지 이동 시 이용하거나, 클라이언트가 재 접속 했을 때 클라이언트를 유일하게 구분하는 수단이 됩니다.
 
+## Message Flashing
+
+좋은 애플리케이션과 사용자 인터페이스는 모두 피드백에 관한 것입니다. 사용자가 충분한 피드백을받지 못하면 응용 프로그램을 싫어하게 될 것입니다. Flask는 플래싱 시스템을 사용하여 사용자에게 피드백을 제공하는 매우 간단한 방법을 제공합니다. 플래싱 시스템은 기본적으로 요청이 끝날 때 메시지를 기록하고 다음 요청에만 액세스 할 수있게합니다. 이것은 일반적으로 메시지를 노출하기 위해 레이아웃 템플릿과 결합됩니다.
+
+메시지를 플래시하려면 flash() 메서드를 사용하고, 메시지를 가져 오려면 템플릿에서도 사용할 수 있는 get_flashed_messages()를 사용할 수 있습니다. 전체 예제는 [Message Flashing](https://flask.palletsprojects.com/en/1.1.x/patterns/flashing/#message-flashing-pattern)을 확인하십시오.
+
 ## 참조
 - https://flask.palletsprojects.com/en/1.1.x/quickstart/
