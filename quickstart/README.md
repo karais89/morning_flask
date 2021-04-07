@@ -629,5 +629,11 @@ app.wsgi_app = ProxyFix(app.wsgi_app)
 
 app 대신 app.wsgi_app을 래핑하면 앱이 여전히 미들웨어가 아닌 Flask 애플리케이션을 가리 키므로 앱을 계속 사용하고 직접 구성 할 수 있습니다.
 
+## Using Flask Extensions
+
+확장은 일반적인 작업을 수행하는 데 도움이되는 패키지입니다. 예를 들어 Flask-SQLAlchemy는 Flask에서 간단하고 쉽게 사용할 수 있도록 SQLAlchemy 지원을 제공합니다.
+
+Flask 확장에 대한 자세한 내용은 [확장](https://flask.palletsprojects.com/en/1.1.x/extensions/#extensions)을 참조하세요.
+
 ## 참조
 - https://flask.palletsprojects.com/en/1.1.x/quickstart/
