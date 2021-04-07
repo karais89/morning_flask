@@ -635,5 +635,9 @@ app 대신 app.wsgi_app을 래핑하면 앱이 여전히 미들웨어가 아닌 
 
 Flask 확장에 대한 자세한 내용은 [확장](https://flask.palletsprojects.com/en/1.1.x/extensions/#extensions)을 참조하세요.
 
+## Deploying to a Web Server
+
+새로운 Flask 앱을 배포 할 준비가 되셨습니까? [배포 옵션](https://flask.palletsprojects.com/en/1.1.x/deploying/#deployment)으로 이동합니다.
+
 ## 참조
 - https://flask.palletsprojects.com/en/1.1.x/quickstart/
