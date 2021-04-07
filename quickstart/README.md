@@ -601,5 +601,22 @@ b'_5 # y2L "F4Q8z \ n \ xec] / '
 
 메시지를 플래시하려면 flash() 메서드를 사용하고, 메시지를 가져 오려면 템플릿에서도 사용할 수 있는 get_flashed_messages()를 사용할 수 있습니다. 전체 예제는 [Message Flashing](https://flask.palletsprojects.com/en/1.1.x/patterns/flashing/#message-flashing-pattern)을 확인하십시오.
 
+
+## 로깅
+
+때로는 정확해야 하지만 실제로는 그렇지 않은 데이터를 다루는 상황에 있을 수 있습니다. 예를 들어 HTTP 요청을 서버에 보내는 클라이언트 측 코드가 있지만 분명히 잘못된 형식 일 수 있습니다. 이는 사용자가 데이터를 조작하거나 클라이언트 코드가 실패하여 발생할 수 있습니다. 대부분의 경우 해당 상황에서 400 Bad Request로 응답하는 것은 괜찮지만 때로는 그렇게 하지 않고 코드가 계속 작동 해야 되는 경우도 있습니다.
+
+수상한 일이 발생했음을 여전히 기록 할 수 있습니다. 이것은 로거가 유용한 곳입니다. Flask 0.3부터 로거는 사용자가 사용할 수 있도록 미리 구성되어 있습니다.
+
+```py
+app.logger.debug('A value for debugging')
+app.logger.warning('A warning occurred (%d apples)', 42)
+app.logger.error('An error occurred')
+```
+
+첨부 된 로거는 표준 로깅 로거이므로 자세한 내용은 공식 로깅 문서를 참조하십시오.
+
+[응용 프로그램 오류](https://flask.palletsprojects.com/en/1.1.x/errorhandling/#application-errors)에 대해 자세히 알아보십시오.
+
 ## 참조
 - https://flask.palletsprojects.com/en/1.1.x/quickstart/
