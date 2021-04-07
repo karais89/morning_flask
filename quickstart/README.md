@@ -618,5 +618,16 @@ app.logger.error('An error occurred')
 
 [응용 프로그램 오류](https://flask.palletsprojects.com/en/1.1.x/errorhandling/#application-errors)에 대해 자세히 알아보십시오.
 
+## Hooking in WSGI Middleware
+
+Flask 애플리케이션에 WSGI 미들웨어를 추가하려면 애플리케이션의 wsgi_app 속성을 래핑합니다. 예를 들어 Nginx 뒤에서 실행하기 위해 Werkzeug의 ProxyFix 미들웨어를 적용하려면 :
+
+```py
+from werkzeug.middleware.proxy_fix import ProxyFix
+app.wsgi_app = ProxyFix(app.wsgi_app)
+```
+
+app 대신 app.wsgi_app을 래핑하면 앱이 여전히 미들웨어가 아닌 Flask 애플리케이션을 가리 키므로 앱을 계속 사용하고 직접 구성 할 수 있습니다.
+
 ## 참조
 - https://flask.palletsprojects.com/en/1.1.x/quickstart/
