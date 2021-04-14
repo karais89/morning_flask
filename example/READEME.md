@@ -2,6 +2,7 @@
 
 # Flask migrate
 - https://flask-migrate.readthedocs.io/en/latest/
+- https://github.com/miguelgrinberg/Flask-Migrate
 
 Flask-Migrate는 Flask 및 Flask-SQLAlchemy 애플리케이션과 함께 작동하는 적절한 방식으로 Alembic을 구성하는 확장입니다. 실제 데이터베이스 마이그레이션 측면에서 모든 것이 Alembic에서 처리되므로 정확히 동일한 기능을 사용할 수 있습니다. 
 
@@ -28,3 +29,9 @@ Flask-SQLAlchemy는 사용하기 쉽고 기본 응용 프로그램에는 매우 
 
 # Alembic
 - 데이터베이스 마이그레이션 도구
+- https://github.com/sqlalchemy/alembic
+- 데이터베이스 마이그레이션이란 테이블 스키마의 버전 관리이다. 열 이름을 바꾼다든지 하는 이력을 마이그레이션 코드로 남겨 두고 필요할 때마다 마이그레이션을 실행했다가 롤백하는 작업을 자유롭게 할 수 있다.
+
+
+# flask mysql
+- https://github.com/PyMySQL/mysqlclient

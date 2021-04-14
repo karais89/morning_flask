@@ -1,6 +1,5 @@
 from flask import current_app
-
-db = current_app.db
+from app import db
 
 
 class User(db.Model):
