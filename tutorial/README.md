@@ -143,5 +143,7 @@ close_db 및 init_db_command 함수는 응용 프로그램 인스턴스에 등�
 이제 init-db가 앱에 등록 되었으므로 이전 페이지의 실행 명령과 유사한 flask 명령을 사용하여 호출 할 수 있습니다.
 
 ```bash
+set FLASK_APP=flasr
+set FLASK_ENV=development
 flask init-db
 ```
