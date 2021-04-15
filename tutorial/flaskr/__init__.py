@@ -36,6 +36,10 @@ def create_app(test_config=None):
     from . import db
     db.init_app(app)
 
+    # app.register_blueprint()를 사용하여 블루프린트를 가져오고 등록합니다. 
+    from . import auth
+    app.register_blueprint(auth.bp)
+
     # a simple page that says hello
     @app.route("/hello")
     def hello():
