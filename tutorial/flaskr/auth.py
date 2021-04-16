@@ -58,7 +58,7 @@ def register():
         elif not password:
             error = "Password is required."
         elif (
-            db.execute("SELECT id FROM user WHERE username = ?", (username,)).fetchone
+            db.execute("SELECT id FROM user WHERE username = ?", (username,)).fetchone()
             is not None
         ):
             error = "User {} is already registered".format(username)
@@ -124,8 +124,8 @@ def logout():
     return redirect(url_for("indx"))
 
 
-# 이 데코레이터는 적용된 원래 뷰를 래핑하는 새 뷰 함수를 반환 합니다. 
-# 새 함수는 사용자가 로드 되었는지 확인하고 그렇지 않으면 로그인 페이지로 리디렉션합니다. 
+# 이 데코레이터는 적용된 원래 뷰를 래핑하는 새 뷰 함수를 반환 합니다.
+# 새 함수는 사용자가 로드 되었는지 확인하고 그렇지 않으면 로그인 페이지로 리디렉션합니다.
 # 사용자가 로드되면 원래 뷰가 호출되고 정상적으로 계속됩니다. 블로그 뷰를 작성할 때 이 데코레이터를 사용합니다.
 def login_required(view):
     @functools.wraps(view)
